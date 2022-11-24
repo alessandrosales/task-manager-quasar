@@ -11,20 +11,36 @@ import { computed, defineComponent } from 'vue';
 
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TagForm from 'src/components/tags/TagForm.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Tag } from 'src/interfaces/tags';
+import { useTagsStore } from 'src/stores/tags';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   components: { DefaultContainer, TagForm },
   setup() {
+    const q = useQuasar();
     const route = useRoute();
+    const router = useRouter();
+
+    const tagsStore = useTagsStore();
+    const countTags = computed(() => tagsStore.countTags);
 
     const isNewRecord = computed(() => {
       return route.params.id === undefined;
     });
 
     function submit(record: Tag) {
-      console.log(record);
+      const id = countTags.value + 1;
+      tagsStore.append({ ...record, id });
+
+      router.push({ name: 'tags' });
+
+      q.notify({
+        message: 'Operação realizada com sucesso',
+        color: 'positive',
+        position: 'top-right',
+      });
     }
 
     return { isNewRecord, submit };
