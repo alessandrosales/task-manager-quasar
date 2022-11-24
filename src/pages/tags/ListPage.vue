@@ -6,7 +6,7 @@
           <tag-filter @filtrate="filtrate" />
         </div>
         <div class="col-12">
-          <tag-table :records="records" />
+          <tag-table :records="filteredRecords" />
         </div>
       </div>
     </default-container>
@@ -14,26 +14,49 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TagTable from 'src/components/tags/TagTable.vue';
 import TagFilter from 'src/components/tags/TagFilter.vue';
 
+import { useTagsStore } from 'src/stores/tags';
+import { Tag } from 'src/interfaces/tags';
+
 export default defineComponent({
   components: { DefaultContainer, TagTable, TagFilter },
   setup() {
-    const records = ref([
-      { id: 1, name: 'Tag 1', color: 'blue' },
-      { id: 2, name: 'Tag 2', color: 'red' },
-      { id: 3, name: 'Tag 3', color: 'yellow' },
-    ]);
+    const tagsStore = useTagsStore();
+    const countTags = computed(() => tagsStore.countTags);
+
+    const records = computed(() => tagsStore.list);
+    const filteredRecords = ref<Tag[]>([]);
 
     function filtrate(search: string) {
-      console.log(search);
+      const tags = records.value.filter((r: Tag) => {
+        const index = r.name
+          ?.toLowerCase()
+          .indexOf(search.toLowerCase()) as number;
+        return index > -1;
+      });
+
+      filteredRecords.value = [...tags];
     }
 
-    return { records, filtrate };
+    onMounted(() => {
+      //devemos consultar no banco de dados
+      if (countTags.value == 0) {
+        tagsStore.setList([
+          { id: 1, name: 'Desenvolvimento', color: 'blue' },
+          { id: 2, name: 'Suporte 1', color: 'red' },
+          { id: 3, name: 'Suporte 2', color: 'yellow' },
+        ]);
+      }
+
+      filteredRecords.value = [...records.value];
+    });
+
+    return { records, filteredRecords, filtrate };
   },
 });
 </script>

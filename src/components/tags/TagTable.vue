@@ -30,7 +30,21 @@
         </td>
         <td class="text-center">{{ record.name }}</td>
         <td class="text-center">
-          <q-chip icon="tag" :label="record.color" />
+          <q-chip
+            :label="record.color"
+            class="text-white shadow-4"
+            :style="`background-color: ${record.color};`"
+          />
+        </td>
+      </tr>
+      <tr v-if="records.length == 0">
+        <td colspan="3">
+          <q-banner class="bg-grey-3" rounded>
+            <template v-slot:avatar>
+              <q-icon name="info" color="primary" />
+            </template>
+            Nenhum registro para exibir no momento.
+          </q-banner>
         </td>
       </tr>
     </tbody>

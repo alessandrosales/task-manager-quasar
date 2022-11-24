@@ -37,6 +37,7 @@
 <script lang="ts">
 import { Tag } from 'src/interfaces/tags';
 import { useValidation } from 'src/services/validation';
+import { useTagsStore } from 'src/stores/tags';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -46,6 +47,8 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const record = ref<Tag>({ name: null, color: null });
+
+    const tagsStore = useTagsStore();
 
     const { required } = useValidation();
 
@@ -63,7 +66,14 @@ export default defineComponent({
 
     onMounted(() => {
       if (!isNewRecord.value) {
-        console.log('Carregar informação do registro:', route.params.id);
+        //devemos consultar no banco de dados
+        const currentRecord = tagsStore.list.find(
+          (t) => t.id == +route.params.id
+        ) as Tag;
+
+        if (currentRecord) {
+          record.value = currentRecord;
+        }
       }
     });
 
