@@ -1,0 +1,68 @@
+<template>
+  <q-markup-table flat bordered>
+    <thead>
+      <tr>
+        <th class="text-center" width="1%">Opções</th>
+        <th class="text-center">Nome</th>
+        <th class="text-center">Cor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(record, key) in records" :key="key">
+        <td class="text-center">
+          <q-btn
+            icon="edit"
+            @click="goToRecord(record.id)"
+            color="primary"
+            class="q-mr-sm"
+            size="10px"
+            round
+            outline
+          />
+          <q-btn
+            icon="delete"
+            @click="remove(record.id)"
+            color="red"
+            size="10px"
+            round
+            outline
+          />
+        </td>
+        <td class="text-center">{{ record.name }}</td>
+        <td class="text-center">
+          <q-chip icon="tag" :label="record.color" />
+        </td>
+      </tr>
+    </tbody>
+  </q-markup-table>
+</template>
+
+<script lang="ts">
+import { useQuasar } from 'quasar';
+import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router';
+export default defineComponent({
+  props: ['records'],
+  setup() {
+    const q = useQuasar();
+    const router = useRouter();
+
+    function goToRecord(id?: number) {
+      router.push({ name: 'tag', params: { id } });
+    }
+
+    function remove(id: number) {
+      q.dialog({
+        title: 'Excluir Registro',
+        message: 'Tem certeza que você quer prosseguir?',
+        cancel: true,
+        persistent: true,
+      }).onOk(() => {
+        console.log('Ok, vamos excluir este registro:', id);
+      });
+    }
+
+    return { goToRecord, remove };
+  },
+});
+</script>
