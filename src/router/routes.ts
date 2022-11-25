@@ -7,6 +7,21 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
       {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('pages/dashboards/MainPage.vue'),
+      },
+      {
+        path: 'tasks',
+        name: 'tasks',
+        component: () => import('pages/tasks/ListPage.vue'),
+      },
+      {
+        path: 'task/:id?',
+        name: 'task',
+        component: () => import('pages/tasks/RecordPage.vue'),
+      },
+      {
         path: 'tags',
         name: 'tags',
         component: () => import('pages/tags/ListPage.vue'),
