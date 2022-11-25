@@ -4,6 +4,8 @@
       <q-input
         label="Pesquisa"
         v-model="search"
+        @keyup.enter="filtrate()"
+        clearable
         placeholder="Pesquise por nome"
         outlined
       />

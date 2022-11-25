@@ -25,17 +25,30 @@ export default defineComponent({
 
     const tagsStore = useTagsStore();
     const countTags = computed(() => tagsStore.countTags);
+    const tagList = computed(() => tagsStore.list);
 
     const isNewRecord = computed(() => {
       return route.params.id === undefined;
     });
 
     function submit(record: Tag) {
-      const id = countTags.value + 1;
-      tagsStore.append({ ...record, id });
+      if (record.id !== undefined) {
+        const newList = tagList.value.map((tag) => {
+          if (tag.id === record.id) {
+            return {
+              ...tag,
+              ...record,
+            };
+          }
+          return tag;
+        });
+        tagsStore.setList(newList);
+      } else {
+        const id = countTags.value + 1;
+        tagsStore.append({ ...record, id });
+      }
 
       router.push({ name: 'tags' });
-
       q.notify({
         message: 'Operação realizada com sucesso',
         color: 'positive',
