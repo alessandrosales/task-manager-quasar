@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TagTable from 'src/components/tags/TagTable.vue';
@@ -33,14 +33,18 @@ export default defineComponent({
     const filteredRecords = ref<Tag[]>([]);
 
     function filtrate(search: string) {
-      const tags = records.value.filter((r: Tag) => {
-        const index = r.name
-          ?.toLowerCase()
-          .indexOf(search.toLowerCase()) as number;
-        return index > -1;
-      });
+      if (typeof search === 'string') {
+        const tags = records.value.filter((r: Tag) => {
+          const index = r.name
+            ?.toLowerCase()
+            .indexOf(search.toLowerCase()) as number;
+          return index > -1;
+        });
 
-      filteredRecords.value = [...tags];
+        filteredRecords.value = [...tags];
+      } else {
+        filteredRecords.value = [...records.value];
+      }
     }
 
     onMounted(() => {
@@ -54,6 +58,10 @@ export default defineComponent({
       }
 
       filteredRecords.value = [...records.value];
+    });
+
+    watch(records, (newValue) => {
+      filteredRecords.value = newValue;
     });
 
     return { records, filteredRecords, filtrate };

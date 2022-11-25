@@ -53,13 +53,17 @@
 
 <script lang="ts">
 import { useQuasar } from 'quasar';
-import { defineComponent } from 'vue';
+import { useTagsStore } from 'src/stores/tags';
+import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 export default defineComponent({
   props: ['records'],
   setup() {
     const q = useQuasar();
     const router = useRouter();
+
+    const tagsStore = useTagsStore();
+    const tagList = computed(() => tagsStore.list);
 
     function goToRecord(id?: number) {
       router.push({ name: 'tag', params: { id } });
@@ -72,7 +76,14 @@ export default defineComponent({
         cancel: true,
         persistent: true,
       }).onOk(() => {
-        console.log('Ok, vamos excluir este registro:', id);
+        const newList = tagList.value.filter((tag) => tag.id !== id);
+        tagsStore.setList(newList);
+
+        q.notify({
+          message: 'Operação realizada com sucesso',
+          color: 'positive',
+          position: 'top-right',
+        });
       });
     }
 
