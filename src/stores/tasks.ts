@@ -24,17 +24,18 @@ export const useTasksStore = defineStore('tasks', {
     append(record: Task) {
       this.list.push(record);
     },
+    save() {
+      localStorage.setItem('tasks', JSON.stringify(this.list));
+    },
+    load() {
+      if (localStorage.getItem('tasks')) {
+        const tasks = localStorage.getItem('tasks') as string;
+        this.list = JSON.parse(tasks);
+      }
+    },
     async findAll(params: { title?: string; description?: string } = {}) {
       const { data } = await api.get('/tasks', { params });
       return data;
-    },
-    async save(data: Task = {} as Task) {
-      const { data: responseData } = await api.request({
-        url: '/tasks',
-        method: 'post',
-        data,
-      });
-      return responseData;
     },
   },
 });

@@ -17,9 +17,14 @@
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TaskTable from 'src/components/tasks/TaskTable.vue';
 import TaskFilter from 'src/components/tasks/TaskFilter.vue';
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { Task } from 'src/interfaces/tasks';
 import { useTasksStore } from 'src/stores/tasks';
+
+interface FiltrateParams {
+  search?: string;
+  status?: string;
+}
 
 export default defineComponent({
   components: { DefaultContainer, TaskTable, TaskFilter },
@@ -29,26 +34,41 @@ export default defineComponent({
     const records = computed(() => tasksStore.list);
     const filteredRecords = ref<Task[]>([]);
 
-    function filtrate(search: string) {
-      if (typeof search === 'string') {
-        const tasks = records.value.filter((r: Task) => {
+    function filtrate(filter: FiltrateParams) {
+      let tasks: Task[] = [...records.value];
+
+      localStorage.setItem('tasks:filter', JSON.stringify(filter));
+
+      if (typeof filter.search === 'string') {
+        const filterBySearch = records.value.filter((r: Task) => {
           const str = `${r.title}-${r.description}`.toLowerCase();
-          const index = str.indexOf(search.toLowerCase()) as number;
+          const src = filter.search as string;
+          const index = str.indexOf(src.toLowerCase()) as number;
           return index > -1;
         });
-
-        filteredRecords.value = [...tasks];
-      } else {
-        filteredRecords.value = [...records.value];
+        tasks = filterBySearch;
       }
+
+      if (typeof filter.status === 'string') {
+        const sts = filter.status as string;
+        const filterByStatus = tasks.filter((t: Task) => {
+          return t.status == sts;
+        });
+        tasks = filterByStatus;
+      }
+
+      filteredRecords.value = [...tasks];
     }
 
     onMounted(() => {
-      filteredRecords.value = [...records.value];
-    });
+      tasksStore.load();
 
-    watch(records, (newValue) => {
-      filteredRecords.value = newValue;
+      if (localStorage.getItem('tasks:filter')) {
+        const filter = JSON.parse(
+          localStorage.getItem('tasks:filter') as string
+        ) as FiltrateParams;
+        filtrate(filter);
+      }
     });
 
     return { records, filteredRecords, filtrate };
