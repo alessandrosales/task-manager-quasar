@@ -4,6 +4,7 @@
       <tr>
         <th class="text-left" width="1%">Opções</th>
         <th class="text-left">Prioridade</th>
+        <th class="text-left">Status</th>
         <th class="text-left">Título</th>
         <th class="text-left">Descrição</th>
         <th class="text-left">Tag(s)</th>
@@ -32,9 +33,12 @@
           </q-btn>
         </td>
         <td class="text-left">
-          <q-chip :class="priorityClass(task.priority)">{{
+          <q-btn :class="priorityClass(task.priority)" push>{{
             getPriorityLabel(task.priority)
-          }}</q-chip>
+          }}</q-btn>
+        </td>
+        <td class="text-left">
+          {{ getStatusLabel(task.status) }}
         </td>
         <td class="text-left">
           {{ task.title }}
@@ -75,6 +79,8 @@
 <script lang="ts">
 import { useQuasar } from 'quasar';
 import { priorities } from 'src/constants/priorities';
+import { statuses } from 'src/constants/statuses';
+import { Tag } from 'src/interfaces/tags';
 import { useTagsStore } from 'src/stores/tags';
 import { useTasksStore } from 'src/stores/tasks';
 import { computed, defineComponent } from 'vue';
@@ -112,8 +118,19 @@ export default defineComponent({
       return val;
     }
 
+    function getStatusLabel(val: string) {
+      if (typeof val === 'string') {
+        const status = statuses.find((p) => p.value == val);
+        return status?.label;
+      }
+
+      return val;
+    }
+
     function filteredTags(list: number[]) {
-      return tagList.value.filter((t: any) => list.indexOf(t.id) > -1);
+      return tagList.value.filter(
+        (t: Tag) => list.indexOf(t.id as number) > -1
+      );
     }
 
     function goToRecord(id?: number) {
@@ -150,6 +167,7 @@ export default defineComponent({
       goToRecord,
       remove,
       getPriorityLabel,
+      getStatusLabel,
       filteredTags,
       priorityClass,
     };

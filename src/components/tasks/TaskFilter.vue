@@ -1,12 +1,24 @@
 <template>
   <div class="row q-col-gutter-md">
-    <div class="col-12">
+    <div class="col-12 col-md-6">
       <q-input
         label="Pesquisa"
         v-model="search"
         @keyup.enter="filtrate()"
         clearable
         placeholder="Pesquise por descrição"
+        outlined
+      />
+    </div>
+    <div class="col-12 col-md-6">
+      <q-select
+        label="Status"
+        v-model="status"
+        :options="statuses"
+        emit-value
+        map-options
+        @keyup.enter="filtrate()"
+        clearable
         outlined
       />
     </div>
@@ -31,10 +43,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+import { statuses } from 'src/constants/statuses';
+
 export default defineComponent({
   emits: ['filtrate'],
   setup(_, { emit }) {
     const search = ref();
+    const status = ref();
 
     const router = useRouter();
 
@@ -43,10 +59,13 @@ export default defineComponent({
     }
 
     function filtrate() {
-      emit('filtrate', search.value);
+      emit('filtrate', {
+        search: search.value,
+        status: status.value,
+      });
     }
 
-    return { search, goToRecord, filtrate };
+    return { search, status, statuses, goToRecord, filtrate };
   },
 });
 </script>
