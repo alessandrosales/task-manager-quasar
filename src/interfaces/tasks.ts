@@ -6,7 +6,7 @@ export interface Task {
   title: string | null;
   description: string | null;
   priority: 'PRIORIDADE_1' | 'PRIORIDADE_2' | 'PRIORIDADE_3';
-  status: 'PENDENTE' | 'INICIADA' | 'FINALIZADA';
+  status: 'PENDENTE' | 'INICIADA' | 'PAUSADA' | 'FINALIZADA';
   tags?: Tag[];
   user?: User | null;
 }

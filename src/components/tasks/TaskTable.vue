@@ -128,9 +128,13 @@ export default defineComponent({
     }
 
     function filteredTags(list: number[]) {
-      return tagList.value.filter(
-        (t: Tag) => list.indexOf(t.id as number) > -1
-      );
+      if (Array.isArray(list) && list.length > 0) {
+        return tagList.value.filter(
+          (t: Tag) => list.indexOf(t.id as number) > -1
+        );
+      }
+
+      return [];
     }
 
     function goToRecord(id?: number) {
@@ -146,6 +150,8 @@ export default defineComponent({
       }).onOk(() => {
         const newList = taskList.value.filter((task) => task.id !== id);
         tasksStore.setList(newList);
+
+        tasksStore.save();
 
         q.notify({
           message: 'Operação realizada com sucesso',

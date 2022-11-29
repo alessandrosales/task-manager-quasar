@@ -44,6 +44,8 @@ export default defineComponent({
         tasksStore.append({ ...record, id });
       }
 
+      tasksStore.save();
+
       router.push({ name: 'tasks' });
       q.notify({
         message: 'Operação realizada com sucesso',

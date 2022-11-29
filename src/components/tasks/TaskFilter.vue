@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { statuses } from 'src/constants/statuses';
@@ -64,6 +64,16 @@ export default defineComponent({
         status: status.value,
       });
     }
+
+    onMounted(() => {
+      if (localStorage.getItem('tasks:filter')) {
+        const filter = JSON.parse(
+          localStorage.getItem('tasks:filter') as string
+        );
+        search.value = filter.search;
+        status.value = filter.status;
+      }
+    });
 
     return { search, status, statuses, goToRecord, filtrate };
   },

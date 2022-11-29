@@ -54,7 +54,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { Tag } from 'src/interfaces/tags';
+import { useTagsStore } from 'src/stores/tags';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
@@ -64,9 +66,25 @@ export default defineComponent({
 
     const router = useRouter();
 
+    const tagsStore = useTagsStore();
+
     function goToPage(name: string) {
       router.push({ name });
     }
+
+    function loadData() {
+      const initialTags: Tag[] = [
+        { id: 1, name: 'Desenvolvimento', color: 'blue' },
+        { id: 2, name: 'Suporte 1', color: 'red' },
+        { id: 3, name: 'Suporte 2', color: 'yellow' },
+      ];
+
+      tagsStore.setList(initialTags);
+    }
+
+    onMounted(() => {
+      loadData();
+    });
 
     return {
       leftDrawerOpen,

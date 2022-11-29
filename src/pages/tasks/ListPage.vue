@@ -17,7 +17,7 @@
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TaskTable from 'src/components/tasks/TaskTable.vue';
 import TaskFilter from 'src/components/tasks/TaskFilter.vue';
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { Task } from 'src/interfaces/tasks';
 import { useTasksStore } from 'src/stores/tasks';
 
@@ -36,6 +36,8 @@ export default defineComponent({
 
     function filtrate(filter: FiltrateParams) {
       let tasks: Task[] = [...records.value];
+
+      localStorage.setItem('tasks:filter', JSON.stringify(filter));
 
       if (typeof filter.search === 'string') {
         const filterBySearch = records.value.filter((r: Task) => {
@@ -59,11 +61,14 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      filteredRecords.value = [...records.value];
-    });
+      tasksStore.load();
 
-    watch(records, (newValue) => {
-      filteredRecords.value = newValue;
+      if (localStorage.getItem('tasks:filter')) {
+        const filter = JSON.parse(
+          localStorage.getItem('tasks:filter') as string
+        ) as FiltrateParams;
+        filtrate(filter);
+      }
     });
 
     return { records, filteredRecords, filtrate };
