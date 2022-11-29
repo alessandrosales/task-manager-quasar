@@ -11,11 +11,23 @@
           outlined
         />
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-3">
         <q-select
           label="Prioridade"
           v-model="record.priority"
           :options="priorities"
+          :rules="[required]"
+          lazy-rules
+          emit-value
+          map-options
+          outlined
+        />
+      </div>
+      <div class="col-12 col-md-3">
+        <q-select
+          label="Status"
+          v-model="record.status"
+          :options="statuses"
           :rules="[required]"
           lazy-rules
           emit-value
@@ -56,6 +68,7 @@ import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTagsStore } from 'src/stores/tags';
 import { priorities } from 'src/constants/priorities';
+import { statuses } from 'src/constants/statuses';
 
 export default defineComponent({
   emits: ['submit'],
@@ -66,6 +79,7 @@ export default defineComponent({
       title: null,
       description: '',
       priority: 'PRIORIDADE_1',
+      status: 'PENDENTE',
       tags: [],
       user: null,
     });
@@ -107,6 +121,7 @@ export default defineComponent({
       isNewRecord,
       tagList,
       priorities,
+      statuses,
       required,
       submit,
       goToList,

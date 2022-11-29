@@ -85,7 +85,9 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
-      config: {},
+      config: {
+        loadingBar: { size: '5px' },
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       lang: 'pt-BR', // Quasar language pack
@@ -98,7 +100,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Dialog', 'Notify'],
+      plugins: ['Dialog', 'Notify', 'Loading', 'LoadingBar'],
     },
 
     // animations: 'all', // --- includes all animations

@@ -27,7 +27,6 @@ export default defineComponent({
   components: { DefaultContainer, TagTable, TagFilter },
   setup() {
     const tagsStore = useTagsStore();
-    const countTags = computed(() => tagsStore.countTags);
 
     const records = computed(() => tagsStore.list);
     const filteredRecords = ref<Tag[]>([]);
@@ -48,15 +47,6 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      //devemos consultar no banco de dados
-      if (countTags.value == 0) {
-        tagsStore.setList([
-          { id: 1, name: 'Desenvolvimento', color: 'blue' },
-          { id: 2, name: 'Suporte 1', color: 'red' },
-          { id: 3, name: 'Suporte 2', color: 'yellow' },
-        ]);
-      }
-
       filteredRecords.value = [...records.value];
     });
 
