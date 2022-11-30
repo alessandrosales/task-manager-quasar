@@ -79,6 +79,8 @@ export default defineComponent({
         const newList = tagList.value.filter((tag) => tag.id !== id);
         tagsStore.setList(newList);
 
+        tagsStore.save();
+
         q.notify({
           message: 'Operação realizada com sucesso',
           color: 'positive',

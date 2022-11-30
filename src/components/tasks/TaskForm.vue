@@ -35,7 +35,19 @@
           outlined
         />
       </div>
-      <div class="col-12">
+      <div class="col-12 col-md-6">
+        <q-select
+          label="Usuário"
+          v-model="record.user_id"
+          :options="users"
+          option-value="id"
+          option-label="name"
+          emit-value
+          map-options
+          outlined
+        />
+      </div>
+      <div class="col-12 col-md-6">
         <q-select
           label="Tags"
           v-model="record.tags"
@@ -47,6 +59,15 @@
           use-chips
           multiple
           outlined
+        />
+      </div>
+      <div class="col-12">
+        <div class="q-mb-sm">Nível de dificuldade</div>
+        <q-rating
+          v-model="record.level"
+          color="red"
+          size="40px"
+          icon="local_fire_department"
         />
       </div>
       <div class="col-12">
@@ -70,6 +91,8 @@ import { useTagsStore } from 'src/stores/tags';
 import { priorities } from 'src/constants/priorities';
 import { statuses } from 'src/constants/statuses';
 
+import { users } from 'src/assets/users';
+
 export default defineComponent({
   emits: ['submit'],
   setup(_, { emit }) {
@@ -81,6 +104,8 @@ export default defineComponent({
       priority: 'PRIORIDADE_1',
       status: 'PENDENTE',
       tags: [],
+      level: 0,
+      user_id: null,
       user: null,
     });
 
@@ -120,6 +145,7 @@ export default defineComponent({
       record,
       isNewRecord,
       tagList,
+      users,
       priorities,
       statuses,
       required,

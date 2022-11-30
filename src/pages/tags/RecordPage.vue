@@ -48,6 +48,8 @@ export default defineComponent({
         tagsStore.append({ ...record, id });
       }
 
+      tagsStore.save();
+
       router.push({ name: 'tags' });
       q.notify({
         message: 'Operação realizada com sucesso',
