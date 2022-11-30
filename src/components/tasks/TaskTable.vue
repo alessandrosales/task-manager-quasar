@@ -4,6 +4,7 @@
       <tr>
         <th class="text-left" width="1%">Opções</th>
         <th class="text-left">Prioridade</th>
+        <th class="text-left">Dificuldade</th>
         <th class="text-left">Status</th>
         <th class="text-left">Título</th>
         <th class="text-left">Descrição</th>
@@ -38,6 +39,15 @@
           }}</q-btn>
         </td>
         <td class="text-left">
+          <q-rating
+            v-model="task.level"
+            color="red"
+            size="30px"
+            icon="local_fire_department"
+            readonly
+          />
+        </td>
+        <td class="text-left">
           {{ getStatusLabel(task.status) }}
         </td>
         <td class="text-left">
@@ -61,10 +71,10 @@
           />
         </td>
         <td class="text-left">
-          <span v-if="task.user !== null">
+          <span v-if="typeof task.user_id === 'number'">
             <q-chip square>
               <q-avatar>
-                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+                <img :src="getAvatarUri(task.user_id)" />
               </q-avatar>
               Pedro
             </q-chip>
@@ -85,6 +95,9 @@ import { useTagsStore } from 'src/stores/tags';
 import { useTasksStore } from 'src/stores/tasks';
 import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
+
+import { users } from 'src/assets/users';
+
 export default defineComponent({
   props: ['records'],
   setup() {
@@ -125,6 +138,11 @@ export default defineComponent({
       }
 
       return val;
+    }
+
+    function getAvatarUri(userId: number) {
+      const user = users.find((u) => u.id === userId);
+      return user?.avatar;
     }
 
     function filteredTags(list: number[]) {
@@ -174,6 +192,7 @@ export default defineComponent({
       remove,
       getPriorityLabel,
       getStatusLabel,
+      getAvatarUri,
       filteredTags,
       priorityClass,
     };
