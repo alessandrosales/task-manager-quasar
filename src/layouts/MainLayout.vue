@@ -18,7 +18,9 @@
             :icon="q.dark.isActive ? 'brightness_7' : 'brightness_4'"
             @click="toggleDark"
             round
+            flat
           />
+          <q-btn icon="logout" @click="logout" class="q-ml-sm" round flat />
         </div>
       </q-toolbar>
     </q-header>
@@ -61,7 +63,6 @@
 
 <script lang="ts">
 import { useQuasar } from 'quasar';
-import { Tag } from 'src/interfaces/tags';
 import { useTagsStore } from 'src/stores/tags';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -89,6 +90,16 @@ export default defineComponent({
       localStorage.setItem('dark', `${q.dark.isActive}`);
     }
 
+    function logout() {
+      localStorage.removeItem('token');
+      router.push({ name: 'login' });
+      q.notify({
+        message: 'Sua sessão foi encerrada',
+        color: 'positive',
+        position: 'top-right',
+      });
+    }
+
     onMounted(() => {
       loadData();
 
@@ -96,11 +107,22 @@ export default defineComponent({
         const isActive = localStorage.getItem('dark') === 'true';
         q.dark.set(isActive);
       }
+
+      if (!localStorage.getItem('token')) {
+        q.notify({
+          message: 'Não autorizado',
+          color: 'negative',
+          position: 'top-right',
+        });
+
+        router.push({ name: 'login' });
+      }
     });
 
     return {
       q,
       toggleDark,
+      logout,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
