@@ -1,7 +1,8 @@
 <template>
   <q-page padding>
     <default-container title="Lista de Tasks">
-      <div class="row q-col-gutter-md">
+      <table-skeleton v-if="loading" />
+      <div v-else class="row q-col-gutter-md">
         <div class="col-12">
           <task-filter @filtrate="filtrate" />
         </div>
@@ -20,6 +21,8 @@ import TaskFilter from 'src/components/tasks/TaskFilter.vue';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import { Task } from 'src/interfaces/tasks';
 import { useTasksStore } from 'src/stores/tasks';
+import { useQuasar } from 'quasar';
+import TableSkeleton from 'src/components/shared/TableSkeleton.vue';
 
 interface FiltrateParams {
   search?: string;
@@ -27,12 +30,14 @@ interface FiltrateParams {
 }
 
 export default defineComponent({
-  components: { DefaultContainer, TaskTable, TaskFilter },
+  components: { DefaultContainer, TaskTable, TaskFilter, TableSkeleton },
   setup() {
+    const q = useQuasar();
     const tasksStore = useTasksStore();
 
     const records = computed(() => tasksStore.list);
     const filteredRecords = ref<Task[]>([]);
+    const loading = ref(true);
 
     function filtrate(filter: FiltrateParams) {
       let tasks: Task[] = [...records.value];
@@ -61,17 +66,24 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      tasksStore.load();
+      q.loadingBar.start();
 
-      if (localStorage.getItem('tasks:filter')) {
-        const filter = JSON.parse(
-          localStorage.getItem('tasks:filter') as string
-        ) as FiltrateParams;
-        filtrate(filter);
-      }
+      setTimeout(() => {
+        tasksStore.load();
+
+        if (localStorage.getItem('tasks:filter')) {
+          const filter = JSON.parse(
+            localStorage.getItem('tasks:filter') as string
+          ) as FiltrateParams;
+          filtrate(filter);
+        }
+
+        q.loadingBar.stop();
+        loading.value = false;
+      }, 1500);
     });
 
-    return { records, filteredRecords, filtrate };
+    return { records, filteredRecords, filtrate, loading };
   },
 });
 </script>
