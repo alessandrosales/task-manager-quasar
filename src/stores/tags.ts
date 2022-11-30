@@ -24,17 +24,18 @@ export const useTagsStore = defineStore('tags', {
     append(record: Tag) {
       this.list.push(record);
     },
+    save() {
+      localStorage.setItem('tags', JSON.stringify(this.list));
+    },
+    load() {
+      if (localStorage.getItem('tags')) {
+        const tags = localStorage.getItem('tags') as string;
+        this.list = JSON.parse(tags);
+      }
+    },
     async findAll(params: { name?: string } = {}) {
       const { data } = await api.get('/tags', { params });
       return data;
-    },
-    async save(data: Tag = {} as Tag) {
-      const { data: responseData } = await api.request({
-        url: '/tags',
-        method: 'post',
-        data,
-      });
-      return responseData;
     },
   },
 });

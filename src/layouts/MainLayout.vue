@@ -13,7 +13,13 @@
 
         <q-toolbar-title> Task Manager </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          <q-btn
+            :icon="q.dark.isActive ? 'brightness_7' : 'brightness_4'"
+            @click="toggleDark"
+            round
+          />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -54,6 +60,7 @@
 </template>
 
 <script lang="ts">
+import { useQuasar } from 'quasar';
 import { Tag } from 'src/interfaces/tags';
 import { useTagsStore } from 'src/stores/tags';
 import { defineComponent, onMounted, ref } from 'vue';
@@ -62,6 +69,7 @@ import { useRouter } from 'vue-router';
 export default defineComponent({
   name: 'MainLayout',
   setup() {
+    const q = useQuasar();
     const leftDrawerOpen = ref(false);
 
     const router = useRouter();
@@ -73,20 +81,26 @@ export default defineComponent({
     }
 
     function loadData() {
-      const initialTags: Tag[] = [
-        { id: 1, name: 'Desenvolvimento', color: 'blue' },
-        { id: 2, name: 'Suporte 1', color: 'red' },
-        { id: 3, name: 'Suporte 2', color: 'yellow' },
-      ];
+      tagsStore.load();
+    }
 
-      tagsStore.setList(initialTags);
+    function toggleDark() {
+      q.dark.toggle();
+      localStorage.setItem('dark', `${q.dark.isActive}`);
     }
 
     onMounted(() => {
       loadData();
+
+      if (localStorage.getItem('dark')) {
+        const isActive = localStorage.getItem('dark') === 'true';
+        q.dark.set(isActive);
+      }
     });
 
     return {
+      q,
+      toggleDark,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;

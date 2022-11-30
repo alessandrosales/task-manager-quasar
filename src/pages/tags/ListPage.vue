@@ -47,6 +47,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      tagsStore.load();
       filteredRecords.value = [...records.value];
     });
 
