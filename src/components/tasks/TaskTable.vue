@@ -40,7 +40,7 @@
         </td>
         <td class="text-left">
           <q-rating
-            v-model="task.level"
+            :model-value="task.level || 0"
             color="red"
             size="30px"
             icon="local_fire_department"
