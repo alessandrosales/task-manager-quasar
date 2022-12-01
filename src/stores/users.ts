@@ -1,31 +1,31 @@
 import { defineStore } from 'pinia';
 import { api } from 'src/boot/axios';
-import { Task } from 'src/interfaces/tasks';
+import { User } from 'src/interfaces/users';
 
-const PATH = 'tasks';
+const PATH = 'users';
 
-export const useTasksStore = defineStore('tasks', {
+export const useUsersStore = defineStore('users', {
   state: () => ({
-    record: {} as Task,
-    list: [] as Task[],
+    record: {} as User,
+    list: [] as User[],
   }),
 
   getters: {
-    countTasks(state) {
+    countUsers(state) {
       return state.list.length;
     },
   },
 
   actions: {
-    setRecord(record: Task) {
+    setRecord(record: User) {
       this.record = record;
     },
-    setList(list: Task[]) {
+    setList(list: User[]) {
       this.list = list;
     },
     async findAll(
       params: { search?: string; status?: string } = {}
-    ): Promise<Task[]> {
+    ): Promise<User[]> {
       const { data } = await api.get(`/${PATH}`, { params });
       return data;
     },
@@ -33,12 +33,12 @@ export const useTasksStore = defineStore('tasks', {
       const { data } = await api.get(`/${PATH}/${id}`);
       return data;
     },
-    async save(task: Task) {
-      const { data } = await api.post(`/${PATH}`, task);
+    async save(user: User) {
+      const { data } = await api.post(`/${PATH}`, user);
       return data;
     },
-    async update(task: Task) {
-      const { data } = await api.put(`/${PATH}/${task.id}`, task);
+    async update(user: User) {
+      const { data } = await api.put(`/${PATH}/${user.id}`, user);
       return data;
     },
     async delete(id: number) {

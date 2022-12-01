@@ -53,17 +53,18 @@
 
 <script lang="ts">
 import { useQuasar } from 'quasar';
+import { useException } from 'src/services/exception';
 import { useTagsStore } from 'src/stores/tags';
-import { computed, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 export default defineComponent({
   props: ['records'],
   setup() {
     const q = useQuasar();
     const router = useRouter();
+    const { handleException } = useException();
 
     const tagsStore = useTagsStore();
-    const tagList = computed(() => tagsStore.list);
 
     function goToRecord(id?: number) {
       router.push({ name: 'tag', params: { id } });
@@ -75,17 +76,18 @@ export default defineComponent({
         message: 'Tem certeza que você quer prosseguir?',
         cancel: true,
         persistent: true,
-      }).onOk(() => {
-        const newList = tagList.value.filter((tag) => tag.id !== id);
-        tagsStore.setList(newList);
-
-        tagsStore.save();
-
-        q.notify({
-          message: 'Operação realizada com sucesso',
-          color: 'positive',
-          position: 'top-right',
-        });
+      }).onOk(async () => {
+        try {
+          await tagsStore.delete(id);
+          await tagsStore.load();
+          q.notify({
+            message: 'Operação realizada com sucesso',
+            color: 'positive',
+            position: 'top-right',
+          });
+        } catch (error) {
+          handleException(error);
+        }
       });
     }
 

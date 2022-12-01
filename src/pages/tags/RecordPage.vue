@@ -15,6 +15,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Tag } from 'src/interfaces/tags';
 import { useTagsStore } from 'src/stores/tags';
 import { useQuasar } from 'quasar';
+import { useException } from 'src/services/exception';
 
 export default defineComponent({
   components: { DefaultContainer, TagForm },
@@ -22,40 +23,33 @@ export default defineComponent({
     const q = useQuasar();
     const route = useRoute();
     const router = useRouter();
+    const { handleException } = useException();
 
     const tagsStore = useTagsStore();
-    const countTags = computed(() => tagsStore.countTags);
-    const tagList = computed(() => tagsStore.list);
 
     const isNewRecord = computed(() => {
       return route.params.id === undefined;
     });
 
-    function submit(record: Tag) {
-      if (record.id !== undefined) {
-        const newList = tagList.value.map((tag) => {
-          if (tag.id === record.id) {
-            return {
-              ...tag,
-              ...record,
-            };
-          }
-          return tag;
+    async function submit(record: Tag) {
+      q.loading.show();
+      try {
+        if (record.id !== undefined) {
+          await tagsStore.update(record);
+        } else {
+          await tagsStore.save(record);
+        }
+
+        router.push({ name: 'tags' });
+        q.notify({
+          message: 'Operação realizada com sucesso',
+          color: 'positive',
+          position: 'top-right',
         });
-        tagsStore.setList(newList);
-      } else {
-        const id = countTags.value + 1;
-        tagsStore.append({ ...record, id });
+      } catch (error) {
+        handleException(error);
       }
-
-      tagsStore.save();
-
-      router.push({ name: 'tags' });
-      q.notify({
-        message: 'Operação realizada com sucesso',
-        color: 'positive',
-        position: 'top-right',
-      });
+      q.loading.hide();
     }
 
     return { isNewRecord, submit };
