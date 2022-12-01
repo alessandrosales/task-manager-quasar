@@ -63,6 +63,7 @@
 
 <script lang="ts">
 import { useQuasar } from 'quasar';
+import { useException } from 'src/services/exception';
 import { useTagsStore } from 'src/stores/tags';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -75,14 +76,12 @@ export default defineComponent({
 
     const router = useRouter();
 
+    const { handleException } = useException();
+
     const tagsStore = useTagsStore();
 
     function goToPage(name: string) {
       router.push({ name });
-    }
-
-    function loadData() {
-      tagsStore.load();
     }
 
     function toggleDark() {
@@ -100,9 +99,7 @@ export default defineComponent({
       });
     }
 
-    onMounted(() => {
-      loadData();
-
+    onMounted(async () => {
       if (localStorage.getItem('dark')) {
         const isActive = localStorage.getItem('dark') === 'true';
         q.dark.set(isActive);
@@ -116,6 +113,12 @@ export default defineComponent({
         });
 
         router.push({ name: 'login' });
+      }
+
+      try {
+        await tagsStore.load();
+      } catch (error) {
+        handleException(error);
       }
     });
 

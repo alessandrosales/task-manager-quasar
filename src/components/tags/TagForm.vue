@@ -35,7 +35,9 @@
 </template>
 
 <script lang="ts">
+import { useQuasar } from 'quasar';
 import { Tag } from 'src/interfaces/tags';
+import { useException } from 'src/services/exception';
 import { useValidation } from 'src/services/validation';
 import { useTagsStore } from 'src/stores/tags';
 import { computed, defineComponent, onMounted, ref } from 'vue';
@@ -44,9 +46,11 @@ import { useRoute, useRouter } from 'vue-router';
 export default defineComponent({
   emits: ['submit'],
   setup(_, { emit }) {
+    const q = useQuasar();
     const route = useRoute();
     const router = useRouter();
     const record = ref<Tag>({ name: null, color: null });
+    const { handleException } = useException();
 
     const tagsStore = useTagsStore();
 
@@ -64,17 +68,16 @@ export default defineComponent({
       emit('submit', record.value);
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      q.loading.show();
       if (!isNewRecord.value) {
-        //devemos consultar no banco de dados
-        const currentRecord = tagsStore.list.find(
-          (t) => t.id == +route.params.id
-        ) as Tag;
-
-        if (currentRecord) {
-          record.value = currentRecord;
+        try {
+          record.value = await tagsStore.find(+route.params.id);
+        } catch (error) {
+          handleException(error);
         }
       }
+      q.loading.hide();
     });
 
     return { record, isNewRecord, required, submit, goToList };

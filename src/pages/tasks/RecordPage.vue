@@ -8,6 +8,7 @@
 import { useQuasar } from 'quasar';
 import TaskForm from 'src/components/tasks/TaskForm.vue';
 import { Task } from 'src/interfaces/tasks';
+import { useException } from 'src/services/exception';
 import { useTasksStore } from 'src/stores/tasks';
 import { computed, defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -18,40 +19,33 @@ export default defineComponent({
     const q = useQuasar();
     const route = useRoute();
     const router = useRouter();
+    const { handleException } = useException();
 
     const tasksStore = useTasksStore();
-    const countTasks = computed(() => tasksStore.countTasks);
-    const tagList = computed(() => tasksStore.list);
 
     const isNewRecord = computed(() => {
       return route.params.id === undefined;
     });
 
-    function submit(record: Task) {
-      if (record.id !== undefined) {
-        const newList = tagList.value.map((task) => {
-          if (task.id === record.id) {
-            return {
-              ...task,
-              ...record,
-            };
-          }
-          return task;
+    async function submit(record: Task) {
+      q.loading.show();
+      try {
+        if (record.id !== undefined) {
+          await tasksStore.update(record);
+        } else {
+          await tasksStore.save(record);
+        }
+
+        router.push({ name: 'tasks' });
+        q.notify({
+          message: 'Operação realizada com sucesso',
+          color: 'positive',
+          position: 'top-right',
         });
-        tasksStore.setList(newList);
-      } else {
-        const id = countTasks.value + 1;
-        tasksStore.append({ ...record, id });
+      } catch (error) {
+        handleException(error);
       }
-
-      tasksStore.save();
-
-      router.push({ name: 'tasks' });
-      q.notify({
-        message: 'Operação realizada com sucesso',
-        color: 'positive',
-        position: 'top-right',
-      });
+      q.loading.hide();
     }
 
     return { isNewRecord, submit };

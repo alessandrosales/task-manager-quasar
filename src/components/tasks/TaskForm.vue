@@ -39,7 +39,7 @@
         <q-select
           label="Usuário"
           v-model="record.user_id"
-          :options="users"
+          :options="userList"
           option-value="id"
           option-label="name"
           emit-value
@@ -88,14 +88,18 @@ import { useTasksStore } from 'src/stores/tasks';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTagsStore } from 'src/stores/tags';
+import { useUsersStore } from 'src/stores/users';
 import { priorities } from 'src/constants/priorities';
 import { statuses } from 'src/constants/statuses';
 
-import { users } from 'src/assets/users';
+import { useException } from 'src/services/exception';
+import { useQuasar } from 'quasar';
+import { Tag } from 'src/interfaces/tags';
 
 export default defineComponent({
   emits: ['submit'],
   setup(_, { emit }) {
+    const q = useQuasar();
     const route = useRoute();
     const router = useRouter();
     const record = ref<Task>({
@@ -109,12 +113,16 @@ export default defineComponent({
       user: null,
     });
 
+    const { handleException } = useException();
+
     const { required } = useValidation();
 
     const tasksStore = useTasksStore();
     const tagsStore = useTagsStore();
+    const usersStore = useUsersStore();
 
     const tagList = computed(() => tagsStore.list);
+    const userList = computed(() => usersStore.list);
 
     const isNewRecord = computed(() => {
       return route.params.id === undefined;
@@ -128,24 +136,33 @@ export default defineComponent({
       emit('submit', record.value);
     }
 
-    onMounted(() => {
-      if (!isNewRecord.value) {
-        //devemos consultar no banco de dados
-        const currentRecord = tasksStore.list.find(
-          (t: Task) => t.id == +route.params.id
-        ) as Task;
+    async function findRecord() {
+      const currentRecord = await tasksStore.find(+route.params.id);
+      const tags = currentRecord.tags.map((t: Tag) => t.id);
+      record.value = {
+        ...currentRecord,
+        tags,
+      };
+    }
 
-        if (currentRecord) {
-          record.value = currentRecord;
+    onMounted(async () => {
+      q.loading.show();
+      if (!isNewRecord.value) {
+        try {
+          await usersStore.load();
+          await findRecord();
+        } catch (error) {
+          handleException(error);
         }
       }
+      q.loading.hide();
     });
 
     return {
       record,
       isNewRecord,
       tagList,
-      users,
+      userList,
       priorities,
       statuses,
       required,
