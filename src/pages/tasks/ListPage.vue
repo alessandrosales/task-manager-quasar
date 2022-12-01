@@ -7,7 +7,7 @@
           <task-filter @filtrate="filtrate" />
         </div>
         <div class="col-12">
-          <task-table :records="filteredRecords" />
+          <task-table :records="records" />
         </div>
       </div>
     </default-container>
@@ -19,10 +19,10 @@ import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TaskTable from 'src/components/tasks/TaskTable.vue';
 import TaskFilter from 'src/components/tasks/TaskFilter.vue';
 import { computed, defineComponent, onMounted, ref } from 'vue';
-import { Task } from 'src/interfaces/tasks';
 import { useTasksStore } from 'src/stores/tasks';
 import { useQuasar } from 'quasar';
 import TableSkeleton from 'src/components/shared/TableSkeleton.vue';
+import { useException } from 'src/services/exception';
 
 interface FiltrateParams {
   search?: string;
@@ -35,55 +35,28 @@ export default defineComponent({
     const q = useQuasar();
     const tasksStore = useTasksStore();
 
+    const { handleException } = useException();
+
     const records = computed(() => tasksStore.list);
-    const filteredRecords = ref<Task[]>([]);
     const loading = ref(true);
 
-    function filtrate(filter: FiltrateParams) {
-      let tasks: Task[] = [...records.value];
-
-      localStorage.setItem('tasks:filter', JSON.stringify(filter));
-
-      if (typeof filter.search === 'string') {
-        const filterBySearch = records.value.filter((r: Task) => {
-          const str = `${r.title}-${r.description}`.toLowerCase();
-          const src = filter.search as string;
-          const index = str.indexOf(src.toLowerCase()) as number;
-          return index > -1;
-        });
-        tasks = filterBySearch;
+    async function filtrate(filter: FiltrateParams = {}) {
+      q.loading.show();
+      try {
+        const list = await tasksStore.findAll(filter);
+        tasksStore.setList(list);
+        loading.value = false;
+      } catch (error) {
+        handleException('Não foi possível carregar os dados');
       }
-
-      if (typeof filter.status === 'string') {
-        const sts = filter.status as string;
-        const filterByStatus = tasks.filter((t: Task) => {
-          return t.status == sts;
-        });
-        tasks = filterByStatus;
-      }
-
-      filteredRecords.value = [...tasks];
+      q.loading.hide();
     }
 
-    onMounted(() => {
-      q.loadingBar.start();
-
-      setTimeout(() => {
-        tasksStore.load();
-
-        if (localStorage.getItem('tasks:filter')) {
-          const filter = JSON.parse(
-            localStorage.getItem('tasks:filter') as string
-          ) as FiltrateParams;
-          filtrate(filter);
-        }
-
-        q.loadingBar.stop();
-        loading.value = false;
-      }, 1500);
+    onMounted(async () => {
+      await filtrate();
     });
 
-    return { records, filteredRecords, filtrate, loading };
+    return { records, filtrate, loading };
   },
 });
 </script>

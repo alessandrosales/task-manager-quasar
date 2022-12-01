@@ -6,7 +6,7 @@
           <tag-filter @filtrate="filtrate" />
         </div>
         <div class="col-12">
-          <tag-table :records="filteredRecords" />
+          <tag-table :records="records" />
         </div>
       </div>
     </default-container>
@@ -14,48 +14,42 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted } from 'vue';
 
 import DefaultContainer from 'src/components/shared/DefaultContainer.vue';
 import TagTable from 'src/components/tags/TagTable.vue';
 import TagFilter from 'src/components/tags/TagFilter.vue';
 
 import { useTagsStore } from 'src/stores/tags';
-import { Tag } from 'src/interfaces/tags';
+import { useException } from 'src/services/exception';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   components: { DefaultContainer, TagTable, TagFilter },
   setup() {
+    const q = useQuasar();
     const tagsStore = useTagsStore();
 
+    const { handleException } = useException();
+
     const records = computed(() => tagsStore.list);
-    const filteredRecords = ref<Tag[]>([]);
 
-    function filtrate(search: string) {
-      if (typeof search === 'string') {
-        const tags = records.value.filter((r: Tag) => {
-          const index = r.name
-            ?.toLowerCase()
-            .indexOf(search.toLowerCase()) as number;
-          return index > -1;
-        });
-
-        filteredRecords.value = [...tags];
-      } else {
-        filteredRecords.value = [...records.value];
+    async function filtrate(search = '') {
+      q.loading.show();
+      try {
+        const list = await tagsStore.findAll({ search });
+        tagsStore.setList(list);
+      } catch (error) {
+        handleException('Não foi possível carregar os dados');
       }
+      q.loading.hide();
     }
 
-    onMounted(() => {
-      tagsStore.load();
-      filteredRecords.value = [...records.value];
+    onMounted(async () => {
+      await filtrate();
     });
 
-    watch(records, (newValue) => {
-      filteredRecords.value = newValue;
-    });
-
-    return { records, filteredRecords, filtrate };
+    return { records, filtrate };
   },
 });
 </script>

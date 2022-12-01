@@ -63,7 +63,7 @@
         </td>
         <td class="text-left">
           <q-chip
-            v-for="(tag, key) in filteredTags(task.tags)"
+            v-for="(tag, key) in task.tags"
             :key="key"
             :label="tag.name"
             class="shadow-4 text-white"
@@ -71,10 +71,10 @@
           />
         </td>
         <td class="text-left">
-          <span v-if="typeof task.user_id === 'number'">
+          <span v-if="task.user">
             <q-chip square>
               <q-avatar>
-                <img :src="getAvatarUri(task.user_id)" />
+                <img :src="task.user.avatar" />
               </q-avatar>
               Pedro
             </q-chip>
@@ -90,25 +90,20 @@
 import { useQuasar } from 'quasar';
 import { priorities } from 'src/constants/priorities';
 import { statuses } from 'src/constants/statuses';
-import { Tag } from 'src/interfaces/tags';
-import { useTagsStore } from 'src/stores/tags';
 import { useTasksStore } from 'src/stores/tasks';
-import { computed, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { users } from 'src/assets/users';
+import { useException } from 'src/services/exception';
 
 export default defineComponent({
   props: ['records'],
   setup() {
     const q = useQuasar();
     const router = useRouter();
+    const { handleException } = useException();
 
     const tasksStore = useTasksStore();
-    const tagsStore = useTagsStore();
-
-    const taskList = computed(() => tasksStore.list);
-    const tagList = computed(() => tagsStore.list);
 
     function priorityClass(priority: string) {
       if (priority === 'PRIORIDADE_1') {
@@ -140,21 +135,6 @@ export default defineComponent({
       return val;
     }
 
-    function getAvatarUri(userId: number) {
-      const user = users.find((u) => u.id === userId);
-      return user?.avatar;
-    }
-
-    function filteredTags(list: number[]) {
-      if (Array.isArray(list) && list.length > 0) {
-        return tagList.value.filter(
-          (t: Tag) => list.indexOf(t.id as number) > -1
-        );
-      }
-
-      return [];
-    }
-
     function goToRecord(id?: number) {
       router.push({ name: 'task', params: { id } });
     }
@@ -165,17 +145,18 @@ export default defineComponent({
         message: 'Tem certeza que você quer prosseguir?',
         cancel: true,
         persistent: true,
-      }).onOk(() => {
-        const newList = taskList.value.filter((task) => task.id !== id);
-        tasksStore.setList(newList);
-
-        tasksStore.save();
-
-        q.notify({
-          message: 'Operação realizada com sucesso',
-          color: 'positive',
-          position: 'top-right',
-        });
+      }).onOk(async () => {
+        try {
+          await tasksStore.delete(id);
+          await tasksStore.load();
+          q.notify({
+            message: 'Operação realizada com sucesso',
+            color: 'positive',
+            position: 'top-right',
+          });
+        } catch (error) {
+          handleException(error);
+        }
       });
     }
 
@@ -183,6 +164,7 @@ export default defineComponent({
       q.dialog({
         title: 'Descrição',
         message,
+        html: true,
       });
     }
 
@@ -192,8 +174,6 @@ export default defineComponent({
       remove,
       getPriorityLabel,
       getStatusLabel,
-      getAvatarUri,
-      filteredTags,
       priorityClass,
     };
   },
