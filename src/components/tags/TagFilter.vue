@@ -8,6 +8,7 @@
         clearable
         placeholder="Pesquise por nome"
         outlined
+        :dense="q.screen.lt.md"
       />
     </div>
     <div class="col-12 text-right">
@@ -16,6 +17,7 @@
         label="Adicionar"
         @click="goToRecord()"
         color="primary"
+        :dense="q.screen.lt.md"
       />
       <q-btn
         icon="search"
@@ -23,17 +25,20 @@
         @click="filtrate()"
         color="primary"
         class="q-ml-sm"
+        :dense="q.screen.lt.md"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { useQuasar } from 'quasar';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 export default defineComponent({
   emits: ['filtrate'],
   setup(_, { emit }) {
+    const q = useQuasar();
     const search = ref();
 
     const router = useRouter();
@@ -46,7 +51,7 @@ export default defineComponent({
       emit('filtrate', search.value);
     }
 
-    return { search, goToRecord, filtrate };
+    return { q, search, goToRecord, filtrate };
   },
 });
 </script>

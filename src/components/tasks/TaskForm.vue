@@ -1,17 +1,19 @@
 <template>
   <q-form @submit="submit">
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-sm-6 col-md-6">
         <q-input
           label="Título"
           v-model="record.title"
           :rules="[required]"
+          hint="Informe um título da task"
           lazy-rules
           placeholder="Informe o título da task"
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
-      <div class="col-12 col-md-3">
+      <div class="col-6 col-sm-6 col-md-3">
         <q-select
           label="Prioridade"
           v-model="record.priority"
@@ -21,9 +23,10 @@
           emit-value
           map-options
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
-      <div class="col-12 col-md-3">
+      <div class="col-6 col-sm-6 col-md-3">
         <q-select
           label="Status"
           v-model="record.status"
@@ -33,9 +36,10 @@
           emit-value
           map-options
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-sm-6 col-md-6">
         <q-select
           label="Usuário"
           v-model="record.user_id"
@@ -45,9 +49,10 @@
           emit-value
           map-options
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-sm-6 col-md-6">
         <q-select
           label="Tags"
           v-model="record.tags"
@@ -59,9 +64,10 @@
           use-chips
           multiple
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
-      <div class="col-12">
+      <div class="col-12 col-sm-6">
         <div class="q-mb-sm">Nível de dificuldade</div>
         <q-rating
           v-model="record.level"
@@ -71,11 +77,27 @@
         />
       </div>
       <div class="col-12">
-        <q-editor label="Título" v-model="record.description" />
+        <q-editor
+          label="Título"
+          v-model="record.description"
+          :dense="q.screen.lt.md"
+        />
       </div>
       <div class="col-12 text-right">
-        <q-btn label="Voltar" type="button" @click="goToList" flat />
-        <q-btn label="Salvar" type="submit" color="primary" class="q-ml-sm" />
+        <q-btn
+          label="Voltar"
+          type="button"
+          @click="goToList"
+          :dense="q.screen.lt.md"
+          flat
+        />
+        <q-btn
+          label="Salvar"
+          type="submit"
+          color="primary"
+          :dense="q.screen.lt.md"
+          class="q-ml-sm"
+        />
       </div>
     </div>
   </q-form>
@@ -159,6 +181,7 @@ export default defineComponent({
     });
 
     return {
+      q,
       record,
       isNewRecord,
       tagList,

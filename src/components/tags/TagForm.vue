@@ -9,10 +9,17 @@
           lazy-rules
           placeholder="Informe o nome da tag"
           outlined
+          :dense="q.screen.lt.md"
         />
       </div>
       <div class="col-12 col-md-6">
-        <q-input outlined v-model="record.color" :rules="[required]" lazy-rules>
+        <q-input
+          outlined
+          v-model="record.color"
+          :rules="[required]"
+          :dense="q.screen.lt.md"
+          lazy-rules
+        >
           <template v-slot:append>
             <q-icon name="colorize" class="cursor-pointer">
               <q-popup-proxy
@@ -27,8 +34,20 @@
         </q-input>
       </div>
       <div class="col-12 text-right">
-        <q-btn label="Voltar" type="button" @click="goToList" flat />
-        <q-btn label="Salvar" type="submit" color="primary" class="q-ml-sm" />
+        <q-btn
+          label="Voltar"
+          type="button"
+          @click="goToList"
+          :dense="q.screen.lt.md"
+          flat
+        />
+        <q-btn
+          label="Salvar"
+          type="submit"
+          color="primary"
+          :dense="q.screen.lt.md"
+          class="q-ml-sm"
+        />
       </div>
     </div>
   </q-form>
@@ -80,7 +99,7 @@ export default defineComponent({
       q.loading.hide();
     });
 
-    return { record, isNewRecord, required, submit, goToList };
+    return { q, record, isNewRecord, required, submit, goToList };
   },
 });
 </script>
