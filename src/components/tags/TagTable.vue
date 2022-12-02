@@ -1,5 +1,5 @@
 <template>
-  <q-markup-table flat bordered>
+  <q-markup-table :dense="q.screen.lt.md" flat bordered>
     <thead>
       <tr>
         <th class="text-center" width="1%">Opções</th>
@@ -18,6 +18,7 @@
             size="10px"
             round
             outline
+            :dense="q.screen.lt.md"
           />
           <q-btn
             icon="delete"
@@ -26,6 +27,7 @@
             size="10px"
             round
             outline
+            :dense="q.screen.lt.md"
           />
         </td>
         <td class="text-center">{{ record.name }}</td>
@@ -39,7 +41,7 @@
       </tr>
       <tr v-if="records.length == 0">
         <td colspan="3">
-          <q-banner class="bg-grey-3" rounded>
+          <q-banner :dense="q.screen.lt.md" class="bg-grey-3" rounded>
             <template v-slot:avatar>
               <q-icon name="info" color="primary" />
             </template>
@@ -91,7 +93,7 @@ export default defineComponent({
       });
     }
 
-    return { goToRecord, remove };
+    return { q, goToRecord, remove };
   },
 });
 </script>

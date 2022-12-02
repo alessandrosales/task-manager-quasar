@@ -1,5 +1,5 @@
 <template>
-  <q-markup-table flat bordered>
+  <q-markup-table :dense="q.screen.lt.md" flat bordered>
     <thead>
       <tr>
         <th class="text-left" width="1%">Opções</th>
@@ -17,7 +17,7 @@
         <td class="text-center">
           <q-btn icon="list" size="sm" round>
             <q-menu>
-              <q-list separator dense>
+              <q-list separator :dense="q.screen.lt.md">
                 <q-item @click="goToRecord(task.id)" clickable v-close-popup>
                   <q-item-section>Editar</q-item-section>
                 </q-item>
@@ -34,9 +34,14 @@
           </q-btn>
         </td>
         <td class="text-left">
-          <q-btn :class="priorityClass(task.priority)" push>{{
-            getPriorityLabel(task.priority)
-          }}</q-btn>
+          <q-btn
+            :label="getPriorityLabel(task.priority)"
+            :class="priorityClass(task.priority)"
+            :dense="q.screen.lt.md"
+            push
+          >
+            <t-tooltip>Existem 3 prioridades</t-tooltip>
+          </q-btn>
         </td>
         <td class="text-left">
           <q-rating
@@ -56,6 +61,7 @@
         <td class="text-left">
           <q-btn
             @click="showDescription(task.description)"
+            :dense="q.screen.lt.md"
             icon="article"
             round
             flat
@@ -96,7 +102,10 @@ import { useRouter } from 'vue-router';
 
 import { useException } from 'src/services/exception';
 
+import TTooltip from '../shared/TTooltip.vue';
+
 export default defineComponent({
+  components: { TTooltip },
   props: ['records'],
   setup() {
     const q = useQuasar();
@@ -169,6 +178,7 @@ export default defineComponent({
     }
 
     return {
+      q,
       showDescription,
       goToRecord,
       remove,
